@@ -1,4 +1,4 @@
-# REPO Extracton Destroy List
+# REPO Extraction Destroy List
 
 A mod for REPO that shows what will be destroyed by the extraction point!
 
