@@ -16,7 +16,7 @@ internal static class MyPluginInfo
 {
     public const string PLUGIN_GUID = "imkyran.REPOExtractionDestroyList";
     public const string PLUGIN_NAME = "REPO Extraction Destroy List";
-    public const string PLUGIN_VERSION = "1.0.1";
+    public const string PLUGIN_VERSION = "1.0.2";
 }
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
@@ -80,7 +80,7 @@ public class Plugin : BaseUnityPlugin
 
         var point = __0.GetComponent<ExtractionPoint>();
         if (point != null && SemiFunc.RunIsLevel() && point == (ExtractionPoint)HarmonyLib.AccessTools.Field(typeof(RoundDirector), "extractionPointCurrent").GetValue(RoundDirector.instance))
-            plugin.StartCoroutine(SetupFixedCollidersOnExtraction(point));
+            point.StartCoroutine(SetupFixedCollidersOnExtraction(point));
     }
 
 
@@ -94,7 +94,7 @@ public class Plugin : BaseUnityPlugin
             canSetupFixedColliders = false;
 
         int timesWaited = 0;
-        while (point == null && point.gameObject.transform.Find("Scale/Extraction Tube/Hurt Colliders Side") == null)
+        while (point == null && point.gameObject?.transform?.Find("Scale/Extraction Tube/Hurt Colliders Side") == null)
         {
             yield return new WaitForSeconds(0.5f);
             timesWaited++;
@@ -104,6 +104,8 @@ public class Plugin : BaseUnityPlugin
                 yield break;
             }
         }
+
+        yield return new WaitForSeconds(2f);
 
         var ExtractionTubeParent = point.gameObject.transform.Find("Scale/Extraction Tube");
         var SideHurtColliders = point.gameObject.transform.Find("Scale/Extraction Tube/Hurt Colliders Side");
