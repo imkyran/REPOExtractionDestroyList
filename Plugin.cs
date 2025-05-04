@@ -12,18 +12,18 @@ using System.Collections.Generic;
 namespace REPOExtractionDestroyList;
 
 
-internal static class PluginInfo
+internal static class MyPluginInfo
 {
     public const string PLUGIN_GUID = "imkyran.REPOExtractionDestroyList";
     public const string PLUGIN_NAME = "REPO Extraction Destroy List";
-    public const string PLUGIN_VERSION = "1.0.0";
+    public const string PLUGIN_VERSION = "1.0.1";
 }
 
-[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-public class REPOExtractionDestroyList : BaseUnityPlugin
+[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+public class Plugin : BaseUnityPlugin
 {
     private static BaseUnityPlugin plugin;
-    private readonly Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+    private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
 
     public static ConfigEntry<bool> configEnableDestroyList;
     public static ConfigEntry<int> configYOffest;
@@ -31,7 +31,7 @@ public class REPOExtractionDestroyList : BaseUnityPlugin
     private void Awake()
     {
         plugin = this;
-        harmony.PatchAll(typeof(REPOExtractionDestroyList));
+        harmony.PatchAll(typeof(Plugin));
 
         configEnableDestroyList = Config.Bind
         (
