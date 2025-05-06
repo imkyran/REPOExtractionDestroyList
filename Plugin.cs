@@ -16,13 +16,12 @@ internal static class MyPluginInfo
 {
     public const string PLUGIN_GUID = "imkyran.REPOExtractionDestroyList";
     public const string PLUGIN_NAME = "REPO Extraction Destroy List";
-    public const string PLUGIN_VERSION = "1.0.2";
+    public const string PLUGIN_VERSION = "1.0.3";
 }
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
-    private static BaseUnityPlugin plugin;
     private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
 
     public static ConfigEntry<bool> configEnableDestroyList;
@@ -30,7 +29,6 @@ public class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        plugin = this;
         harmony.PatchAll(typeof(Plugin));
 
         configEnableDestroyList = Config.Bind
@@ -113,7 +111,7 @@ public class Plugin : BaseUnityPlugin
         NewSideColliders.name = "Hurt Colliders Fake";
         GameObject.Destroy(NewSideColliders.transform.Find("Hurt Collider Enemies").gameObject);
 
-        NewSideColliders.transform.localPosition = new Vector3(0f, NewSideColliders.transform.localPosition.y - 2.66f, 0f);
+        NewSideColliders.transform.localPosition = new Vector3(0f, NewSideColliders.transform.localPosition.y - 3.2f, 0f);
         foreach (HurtCollider collider in NewSideColliders.GetComponentsInChildren<HurtCollider>())
         {
             collider.transform.localScale = new Vector3(collider.transform.localScale.x, collider.transform.localScale.y * 2, collider.transform.localScale.z);
@@ -151,12 +149,11 @@ public class Plugin : BaseUnityPlugin
         if (playerAvatar != null)
             return SemiFunc.PlayerGetName(playerAvatar);
 
+        var player_tumble = collider.gameObject.GetComponentInParent<PlayerTumble>();
+        if (player_tumble != null && player_tumble.playerAvatar != null) return SemiFunc.PlayerGetName(player_tumble.playerAvatar);
+
         var phys_obj = collider.gameObject.GetComponentInParent<PhysGrabObject>();
         if (phys_obj == null) return null;
-
-        // return null if these exist, dont want non items to show up in list
-        var player_tumble = collider.gameObject.GetComponentInParent<PlayerTumble>();
-        if (player_tumble != null) return null;
 
         var enemy_rb = collider.gameObject.GetComponentInParent<EnemyRigidbody>();
         if (enemy_rb != null)
