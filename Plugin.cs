@@ -16,7 +16,7 @@ internal static class MyPluginInfo
 {
     public const string PLUGIN_GUID = "imkyran.REPOExtractionDestroyList";
     public const string PLUGIN_NAME = "REPO Extraction Destroy List";
-    public const string PLUGIN_VERSION = "1.0.3";
+    public const string PLUGIN_VERSION = "1.0.4";
 }
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
