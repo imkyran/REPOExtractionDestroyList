@@ -91,19 +91,14 @@ public class Plugin : BaseUnityPlugin
         else
             canSetupFixedColliders = false;
 
-        int timesWaited = 0;
-        while (point == null && point.gameObject?.transform?.Find("Scale/Extraction Tube/Hurt Colliders Side") == null)
-        {
-            yield return new WaitForSeconds(0.5f);
-            timesWaited++;
-            if (timesWaited > 10)
-            {
-                canSetupFixedColliders = true;
-                yield break;
-            }
-        }
+        yield return new WaitForSeconds(3.73f);
 
-        yield return new WaitForSeconds(2f);
+        if (point?.gameObject?.transform?.Find("Scale/Extraction Tube/Hurt Colliders Side") == null)
+        {
+            canSetupFixedColliders = true;
+            Debug.LogError($"Failed to setup extraction tube colliders on: {point.name}");
+            yield break;
+        }
 
         var ExtractionTubeParent = point.gameObject.transform.Find("Scale/Extraction Tube");
         var SideHurtColliders = point.gameObject.transform.Find("Scale/Extraction Tube/Hurt Colliders Side");
