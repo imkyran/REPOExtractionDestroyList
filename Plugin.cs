@@ -16,7 +16,7 @@ internal static class MyPluginInfo
 {
     public const string PLUGIN_GUID = "imkyran.REPOExtractionDestroyList";
     public const string PLUGIN_NAME = "REPO Extraction Destroy List";
-    public const string PLUGIN_VERSION = "1.0.4";
+    public const string PLUGIN_VERSION = "1.1.0";
 }
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
@@ -26,6 +26,9 @@ public class Plugin : BaseUnityPlugin
 
     public static ConfigEntry<bool> configEnableDestroyList;
     public static ConfigEntry<int> configYOffest;
+    public static ConfigEntry<bool> configShowPlayers;
+    public static ConfigEntry<bool> configShowEnemies;
+    public static ConfigEntry<int> configDistance;
 
     private void Awake()
     {
@@ -46,6 +49,30 @@ public class Plugin : BaseUnityPlugin
             75,
             new ConfigDescription("Moves the UI up or down", new AcceptableValueRange<int>(75, 200))
         );
+
+        configShowPlayers = Config.Bind
+        (
+            "ExtractionDestroyList",
+            "Show Players In List",
+            true,
+            "Enables showing players in the destroy list"
+        );
+
+        configShowEnemies = Config.Bind
+        (
+           "ExtractionDestroyList",
+            "Show Enemies In List",
+            true,
+            "Enables showing enemies in the destroy list"
+        );
+
+        configDistance = Config.Bind
+        (
+            "ExtractionDestroyList",
+            "UI Show Distance",
+            15,
+            new ConfigDescription("Sets the distance from the extraction point that the UI will appear (0 disables this)", new AcceptableValueRange<int>(0, 100))
+        );
     }
 
     [HarmonyPatch(typeof(EnergyUI), "Update")]
@@ -54,6 +81,17 @@ public class Plugin : BaseUnityPlugin
     {
         if (__instance.GetComponent<TextMeshProUGUI>() != null)
         {
+            if (configDistance.Value > 0)
+            {
+                var ext_pos = GetCurrentExtractionPos();
+                if (ext_pos == Vector3.zero)
+                    return;
+
+                var lp_pos = PlayerController.instance.transform.position;
+                var dist = Vector3.Distance(ext_pos, lp_pos);
+                if (dist > configDistance.Value)
+                    return;
+            }
             var ___Text = __instance.GetComponent<TextMeshProUGUI>();
             if (SemiFunc.RunIsLevel() && configEnableDestroyList.Value)
             {
@@ -141,11 +179,11 @@ public class Plugin : BaseUnityPlugin
             }
         }
 
-        if (playerAvatar != null)
-            return SemiFunc.PlayerGetName(playerAvatar);
-
         var player_tumble = collider.gameObject.GetComponentInParent<PlayerTumble>();
-        if (player_tumble != null && player_tumble.playerAvatar != null) return SemiFunc.PlayerGetName(player_tumble.playerAvatar);
+        if (player_tumble != null && player_tumble.playerAvatar != null) playerAvatar = player_tumble.playerAvatar;
+
+        if (playerAvatar != null)
+            return configShowPlayers.Value ? SemiFunc.PlayerGetName(playerAvatar) : null;
 
         var phys_obj = collider.gameObject.GetComponentInParent<PhysGrabObject>();
         if (phys_obj == null) return null;
@@ -154,7 +192,7 @@ public class Plugin : BaseUnityPlugin
         if (enemy_rb != null)
         {
             var EnemyParent = enemy_rb.gameObject.GetComponentInParent<EnemyParent>();
-            if (EnemyParent != null)
+            if (EnemyParent != null && configShowEnemies.Value)
             {
                 return EnemyParent.enemyName;
             }
@@ -226,8 +264,20 @@ public class Plugin : BaseUnityPlugin
                     }
                 }
             }
-
         }
         return colliderList;
+    }
+
+    internal static Vector3 GetCurrentExtractionPos()
+    {
+        if (RoundDirector.instance == null)
+            return Vector3.zero;
+
+        var point = HarmonyLib.AccessTools.Field(typeof(RoundDirector), "extractionPointCurrent").GetValue(RoundDirector.instance) as ExtractionPoint;
+        if (point != null)
+        {
+            return point.transform.position;
+        }
+        return Vector3.zero;
     }
 }
